@@ -51,10 +51,6 @@ class App(ctk.CTk):
         
         return
     
-    def build_create_key_tab(self):
-        print("\nCreate Key tab opened!")
-        return
-    
     def build_delete_key_tab(self):
         print("\nDelete Key tab opened!")
         return
