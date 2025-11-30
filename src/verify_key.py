@@ -30,6 +30,7 @@ def on_verify(app):
     if app.no_key_msg is not None:
         app.no_key_msg.destroy()
         app.no_key_msg = None
+
     license_key = app.key_input.get().strip()
     if not license_key:
         print(f"No license key were entered!")
@@ -45,15 +46,15 @@ def on_verify(app):
     meta = result.get("meta")
 
     if result.get("valid") and data != None:
-        app.success_msg = ctk.CTkLabel(app.message_frame, text=f"Key `{license_key}` id valid!", text_color="green", font=app.main_font)
+        app.success_msg = ctk.CTkLabel(app.message_frame, text=f"Key `{license_key}` is valid!", text_color="green", font=app.log_font)
         app.success_msg.pack(padx=10, pady=10)
         app.key_input.delete(first_index=0, last_index=len_k)
         print("Successfuly verified the key!")
     elif meta["code"] == "NOT_FOUND":
-        app.fail_msg = ctk.CTkLabel(app.message_frame, text=f"Key `{license_key}` is unvalid!", text_color="red", font=app.main_font)
+        app.fail_msg = ctk.CTkLabel(app.message_frame, text=f"Key `{license_key}` is unvalid!", text_color="red", font=app.log_font)
         app.fail_msg.pack(padx=10, pady=10)
         print(f"Couln't verify the key! (unvalid key)")
     else:
-        app.fail_msg = ctk.CTkLabel(app.message_frame, text=f"Key `{license_key}` couln't be verified!\nError: {result.get("error")}", text_color="red", font=app.main_font)
+        app.fail_msg = ctk.CTkLabel(app.message_frame, text=f"Key `{license_key}` couln't be verified!\nError: {result.get("error")}", text_color="red", font=app.log_font)
         app.fail_msg.pack(padx=10, pady=10)
         print(f"Couln't verify the key! ({result.get("error")})")

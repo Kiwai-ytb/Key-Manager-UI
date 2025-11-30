@@ -2,13 +2,14 @@ import customtkinter as ctk
 from config.utilities import resource_path
 from src.activate_key import activate_key_tab
 from src.verify_key import verify_key_tab
+from src.create_key import create_key_tab
 
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
 
         # Basic parameters
-        self.geometry("800x600")
+        self.geometry("800x750")
         self.title("Kiwai's Key Manager")
 
         self.icon_path = resource_path("Alya.ico")
@@ -19,6 +20,7 @@ class App(ctk.CTk):
 
         self.title_font = ctk.CTkFont(family="Segoe UI Bold", size=30)
         self.main_font = ctk.CTkFont(family="Segoe UI", size=15)
+        self.log_font = ctk.CTkFont(family="Segoe UI Italic", size=20)
 
         # Frames
         self.title_frame = ctk.CTkFrame(self)
@@ -70,7 +72,7 @@ class App(ctk.CTk):
         elif tab_name == "Activate Key":
             activate_key_tab(self)
         elif tab_name == "Create Key":
-            self.build_create_key_tab()
+            create_key_tab(self)
         elif tab_name == "Delete Key":
             self.build_delete_key_tab()
         elif tab_name == "Key Info":

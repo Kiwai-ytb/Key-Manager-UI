@@ -31,6 +31,7 @@ def on_activate(app):
     if app.no_key_msg is not None:
         app.no_key_msg.destroy()
         app.no_key_msg = None
+
     license_key = app.key_input.get().strip()
     if not license_key:
         print(f"No license key were entered!")
@@ -47,19 +48,19 @@ def on_activate(app):
     result = activate_key(license_key, machine_udid)
 
     if result.get("success"):
-        app.success_msg = ctk.CTkLabel(app.message_frame, text=f"Key `{license_key}` successfuly activated!", text_color="green", font=app.main_font)
+        app.success_msg = ctk.CTkLabel(app.message_frame, text=f"Key `{license_key}` successfuly activated!", text_color="green", font=app.log_font)
         app.success_msg.pack(padx=10, pady=10)
         app.key_input.delete(first_index=0, last_index=len_k)
         print("Successfuly activated the key!")
     elif result.get("status") == 422:
-        app.fail_msg = ctk.CTkLabel(app.message_frame, text="Key is already activate!", text_color="red", font=app.main_font)
+        app.fail_msg = ctk.CTkLabel(app.message_frame, text="Key is already activate!", text_color="red", font=app.log_font)
         app.fail_msg.pack(padx=10, pady=10)
         print(f"Couln't activate the key! (already activated)")
     elif result.get("error") == "NOT_FOUND":
-        app.fail_msg = ctk.CTkLabel(app.message_frame, text="Unvalid Key!", text_color="red", font=app.main_font)
+        app.fail_msg = ctk.CTkLabel(app.message_frame, text="Unvalid Key!", text_color="red", font=app.log_font)
         app.fail_msg.pack(padx=10, pady=10)
         print(f"Couln't activate the key! (unvalid key)")
     else:
-        app.fail_msg = ctk.CTkLabel(app.message_frame, text=f"Key `{license_key}` couln't be activated!\nError: {result.get("error")}", text_color="red", font=app.main_font)
+        app.fail_msg = ctk.CTkLabel(app.message_frame, text=f"Key `{license_key}` couln't be activated!\nError: {result.get("error")}", text_color="red", font=app.log_font)
         app.fail_msg.pack(padx=10, pady=10)
         print(f"Couln't activate the key! ({result.get("error")})")
