@@ -7,7 +7,7 @@ PRODUCT_ID = os.getenv("KEYGEN_PRODUCT_ID")
 ACCOUNT_ID = os.getenv("KEYGEN_ACCOUNT_ID")
 POLICY_ID = os.getenv("KEYGEN_POLICY_ID")
 
-def verify_key(license_key: str):
+def verify_key(license_key: str) -> dict:
     url = f"https://api.keygen.sh/v1/accounts/{ACCOUNT_ID}/licenses/actions/validate-key"
 
     headers = {
@@ -100,9 +100,12 @@ def activate_key(license_key: str, machine_udid: str) -> dict:
             }
     except Exception as e:
         print(f"Error while activating the Key: {license_key}: {e}")
-        return {"success": False, "error": str(e), "machine_id": None}
+        return {"success": False,
+                "error": str(e),
+                "machine_id": None
+                }
 
-def create_key(license_key: str, license_name: str, license_time: int | None):
+def create_key(license_key: str, license_name: str, license_time: int | None) -> dict:
     url = f"https://api.keygen.sh/v1/accounts/{ACCOUNT_ID}/licenses"
     headers = {
         "Content-Type": "application/vnd.api+json",
@@ -150,3 +153,73 @@ def create_key(license_key: str, license_name: str, license_time: int | None):
             return error
     except Exception as e:
         print(f"Error while creating Key: {license_key} ({license_name}) - {e}")
+
+def delete_key(license_id: str) -> bool:
+    url = f"https://api.keygen.sh/v1/accounts/{ACCOUNT_ID}/licenses/{license_id}"
+    headers = {
+    "Accept": "application/vnd.api+json",
+    "Content-Type": "application/vnd.api+json",
+    "Authorization": f"Bearer {KEYGEN_TOKEN}"
+    }
+
+    try:
+        r = requests.delete(url, headers=headers)
+        print(f"Succesfuly deleted Key for ID: {license_id}")
+        return r.status_code == 204, None
+    except Exception as error:
+        print(f"Error while deleting Key for ID: {license_id} error: {error}")
+        return None, error
+    
+def key_infos(license_id: str) -> dict:
+    url = f"https://api.keygen.sh/v1/accounts/{ACCOUNT_ID}/licenses/{license_id}"
+    headers={
+    "Accept": "application/vnd.api+json",
+    "Authorization": f"Bearer {KEYGEN_TOKEN}"
+    }
+
+    machine = get_license_machines(license_id)
+    if machine != []:
+        machine_udid = machine["attributes"]["fingerprint"]
+    else:
+        machine_udid = None
+
+    try:
+        r = requests.get(url, headers=headers)
+        if r.status_code == 200:
+            key_data = r.json()
+            key_data["data"]["attributes"]["machine_udid"] = machine_udid
+            print(f"Succesfuly fetched Key infos for ID: {license_id}")
+            return {
+                "success": True,
+                "key_data": key_data
+            }
+        
+        else:
+            error = r.text()
+            print(f"Failed to fetch Key infos for ID: {license_id}, status: {r.status_code}, error: {error}")
+            return {
+                "success": False,
+                "error": error
+            }
+        
+    except Exception as e:
+        print(f"Error while fetching Key infos for ID: {license_id} error: {e}")
+        return None
+
+def get_license_machines(license_id: str) -> list:
+    url = f"https://api.keygen.sh/v1/accounts/{ACCOUNT_ID}/licenses/{license_id}/machines"
+    headers = {
+        "Accept": "application/vnd.api+json",
+        "Authorization": f"Bearer {KEYGEN_TOKEN}"
+    }
+    
+    try:
+        r = requests.get(url, headers=headers)
+        if r.status_code == 200:
+            data = r.json()
+            return data.get("data", [])
+        else:
+            return []
+    except Exception as e:
+        print(f"Error getting machines for license {license_id}: {e}")
+        return []

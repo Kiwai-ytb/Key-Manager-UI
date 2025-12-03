@@ -3,6 +3,8 @@ from config.utilities import resource_path
 from src.activate_key import activate_key_tab
 from src.verify_key import verify_key_tab
 from src.create_key import create_key_tab
+from src.delete_key import delete_key_tab
+from src.key_infos import key_infos_tab
 
 class App(ctk.CTk):
     def __init__(self):
@@ -70,9 +72,9 @@ class App(ctk.CTk):
         elif tab_name == "Create Key":
             create_key_tab(self)
         elif tab_name == "Delete Key":
-            self.build_delete_key_tab()
+            delete_key_tab(self)
         elif tab_name == "Key Info":
-            self.build_key_info_tab()
+            key_infos_tab(self)
 
     def clear_main_frame(self):
         for widget in self.main_frame.winfo_children():

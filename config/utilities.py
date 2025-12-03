@@ -1,4 +1,5 @@
 import os, subprocess, sys
+from datetime import datetime
 
 def resource_path(relative_path: str) -> str:
     if hasattr(sys, "frozen"):
@@ -15,3 +16,14 @@ def get_uuid():
         return "Not Found"
     except Exception:
         return "Not Found"
+    
+def format_timestamp(timestamp_str: str) -> str:
+    try:
+        dt = datetime.strptime(timestamp_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+        return dt.strftime("%Y-%m-%d: %Hh%M")
+    except ValueError:
+        try:
+            dt = datetime.strptime(timestamp_str, "%Y-%m-%dT%H:%M:%SZ")
+            return dt.strftime("%Y-%m-%d: %Hh%M")
+        except ValueError as e:
+            return f"Invalid format: {e}"

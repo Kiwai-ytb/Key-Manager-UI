@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from api_call import create_key
 from datetime import datetime, timedelta, timezone
+from config.utilities import format_timestamp
 
 def parse_license_time(input_str: str) -> str | None:
     if input_str is None:
@@ -118,7 +119,7 @@ def on_create(app):
     if result.get("success"):
         app.success_msg = ctk.CTkLabel(app.message_frame, text=f"Key `{license_name}` successfuly created!", text_color="green", font=app.log_font)
         app.success_msg.pack(padx=10, pady=10)
-        app.info_msg = ctk.CTkLabel(app.message_frame, text=f"Name: {license_name}\nKey: {license_key}\nExpiry: {expiry}\nStatus: {status}", font=app.log_font)
+        app.info_msg = ctk.CTkLabel(app.message_frame, text=f"Name: {license_name}\nKey: {license_key}\nExpiry: {format_timestamp(expiry) if expiry != None else "LIFETIME"}\nStatus: {status}", font=app.log_font)
         app.info_msg.pack(padx=10, pady=10, fill="both")
         app.name_input.delete(first_index=0, last_index=len_name)
         if license_time:
