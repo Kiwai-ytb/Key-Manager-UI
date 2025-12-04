@@ -1,12 +1,5 @@
-import os, subprocess, sys
+import subprocess
 from datetime import datetime
-
-def resource_path(relative_path: str) -> str:
-    if hasattr(sys, "frozen"):
-        base_path = sys._MEIPASS
-    else:
-        base_path = os.path.dirname(__file__)
-    return os.path.join(base_path, relative_path)
 
 def get_uuid():
     try:

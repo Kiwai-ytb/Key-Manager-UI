@@ -1,10 +1,16 @@
-import customtkinter as ctk
-from config.utilities import resource_path
+import customtkinter as ctk, sys, os
 from src.activate_key import activate_key_tab
 from src.verify_key import verify_key_tab
 from src.create_key import create_key_tab
 from src.delete_key import delete_key_tab
 from src.key_infos import key_infos_tab
+
+def resource_path(relative_path: str) -> str:
+    if hasattr(sys, "frozen"):
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.dirname(__file__)
+    return os.path.join(base_path, relative_path)
 
 class App(ctk.CTk):
     def __init__(self):
@@ -14,7 +20,7 @@ class App(ctk.CTk):
         self.geometry("800x750")
         self.title("Kiwai's Key Manager")
 
-        self.icon_path = resource_path("Alya.ico")
+        self.icon_path = resource_path(r"Alya.ico")
         self.iconbitmap(self.icon_path)
 
         ctk.set_appearance_mode("system")
