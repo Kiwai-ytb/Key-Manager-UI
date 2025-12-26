@@ -1,13 +1,13 @@
 import customtkinter as ctk
-from api_call import verify_key
+from api_call import hwid_reset_key
 
-def verify_key_tab(app):
-        print("\nVerify Key tab opened!")
+def hwid_reset_key_tab(app):
+        print("\nHWID Reset Key tab opened!")
 
         key_frame = ctk.CTkFrame(app.main_frame)
-        key_title = ctk.CTkLabel(key_frame, text="Please enter your Key to Activate it:", font=app.main_font)
+        key_title = ctk.CTkLabel(key_frame, text="Please enter your Key to HWID Reset it:", font=app.main_font)
         app.key_input = ctk.CTkEntry(key_frame, placeholder_text="Put your Key here", font=app.main_font, width=450)
-        activate_button = ctk.CTkButton(app.main_frame, text="Verify it!", command=lambda: on_verify(app), font=app.main_font)
+        activate_button = ctk.CTkButton(app.main_frame, text="Reset it!", command=lambda: on_reset(app), font=app.main_font)
 
         app.message_frame = ctk.CTkFrame(app.main_frame, fg_color="transparent")
         app.success_msg = None
@@ -20,7 +20,7 @@ def verify_key_tab(app):
         activate_button.pack(padx=20, pady=0, fill="both")
         app.message_frame.pack(padx=20, pady=10, fill="both", expand=True)
 
-def on_verify(app):
+def on_reset(app):
     if app.success_msg is not None:
         app.success_msg.destroy()
         app.success_msg = None
@@ -41,20 +41,23 @@ def on_verify(app):
     len_k = len(license_key)
     print(f"license_key fetched: {license_key}")
 
-    result = verify_key(license_key)
-    data = result.get("data")
-    meta = result.get("meta")
+    result = hwid_reset_key(license_key)
+    custom_code = result.get("custom_code")
 
-    if result.get("valid") == True and data != None:
-        app.success_msg = ctk.CTkLabel(app.message_frame, text=f"Key `{license_key}` is valid!", text_color="green", font=app.log_font)
+    if result.get("success") == True:
+        app.success_msg = ctk.CTkLabel(app.message_frame, text=f"Key `{license_key}` successfully reseted!", text_color="green", font=app.log_font)
         app.success_msg.pack(padx=10, pady=10)
         app.key_input.delete(first_index=0, last_index=len_k)
-        print("Successfuly verified the key!")
-    elif meta["code"] == "NOT_FOUND":
+        print("Successfuly reseted the key!")
+    elif custom_code == "INVALID":
         app.fail_msg = ctk.CTkLabel(app.message_frame, text=f"Key `{license_key}` is invalid!", text_color="red", font=app.log_font)
         app.fail_msg.pack(padx=10, pady=10)
-        print(f"Couln't verify the key! (invalid key)")
-    else:
-        app.fail_msg = ctk.CTkLabel(app.message_frame, text=f"Key `{license_key}` couln't be verified!\nError: {result.get("error")}", text_color="red", font=app.log_font)
+        print(f"Couln't reset the key! (invalid key)")
+    elif custom_code == "NO_MACHINE":
+        app.fail_msg = ctk.CTkLabel(app.message_frame, text=f"Key `{license_key}` is not associated with any machine!", text_color="red", font=app.log_font)
         app.fail_msg.pack(padx=10, pady=10)
-        print(f"Couln't verify the key! ({result.get("error")})")
+        print(f"Couln't reset the key! (no_machine)")
+    else:
+        app.fail_msg = ctk.CTkLabel(app.message_frame, text=f"Key `{license_key}` couln't be verified!\nError: {result.get("errors")}", text_color="red", font=app.log_font)
+        app.fail_msg.pack(padx=10, pady=10)
+        print(f"Couln't reset the key! ({result.get("errors")})")

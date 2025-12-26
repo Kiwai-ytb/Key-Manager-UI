@@ -177,11 +177,10 @@ def key_infos(license_id: str) -> dict:
     "Authorization": f"Bearer {KEYGEN_TOKEN}"
     }
 
-    machine = get_license_machines(license_id)
-    if machine != []:
+    machine = get_license_machine(license_id)
+    machine_udid = None
+    if machine is not None:
         machine_udid = machine["attributes"]["fingerprint"]
-    else:
-        machine_udid = None
 
     try:
         r = requests.get(url, headers=headers)
@@ -206,7 +205,85 @@ def key_infos(license_id: str) -> dict:
         print(f"Error while fetching Key infos for ID: {license_id} error: {e}")
         return None
 
-def get_license_machines(license_id: str) -> list:
+def hwid_reset_key(license_key: str):
+    validate_result = verify_key(license_key)
+    
+    if not validate_result.get("valid"):
+        return {
+            "success": False,
+            "data": None,
+            "error": "Invalid or expired license key",
+            "custom_code": "INVALID",
+            "machine_id": None
+        }
+    
+    license_id = validate_result["data"]["id"]
+    
+    machine = get_license_machine(license_id)
+    
+    if machine is None:
+        print(f"No machine associated with the Key {license_key} ")
+        return {
+            "success": False,
+            "data": None,
+            "error": "No machine associated with this license",
+            "custom_code": "NO_MACHINE",
+            "machine_id": None
+        }
+    
+    machine_id = machine["id"]
+    
+    url = f"https://api.keygen.sh/v1/accounts/{ACCOUNT_ID}/machines/{machine_id}"
+    headers = {
+        "Accept": "application/vnd.api+json",
+        "Authorization": f"Bearer {KEYGEN_TOKEN}"
+    }
+    
+    try:
+        r = requests.delete(url, headers=headers)
+        if r.status_code == 204:
+            print(f"Successfully HWID reseted Key {license_key}")
+            return {
+                "success": True,
+                "data": None,
+                "machine_id": machine_id
+            }
+        else:
+            response_data = r.json()
+            errors = response_data.get("errors", [])
+            
+            error_detail = "HWID reset failed"
+            error_code = "None"
+            error_title = "None"
+            
+            if errors:
+                error_obj = errors[0]
+                error_detail = error_obj.get("detail", "HWID reset failed")
+                error_code = error_obj.get("code", "None")
+                error_title = error_obj.get("title", "None")
+            
+            print(f"Failed to HWID reset Key {license_key} ({error_detail}), {r.status_code}")
+            return {
+                "success": False,
+                "data": None,
+                "errors": errors,
+                "error_title": error_title,
+                "error_detail": error_detail,
+                "error_code": error_code,
+                "status": r.status_code,
+                "machine_id": machine_id
+            }
+                
+    except Exception as e:
+        print(f"Error while HWID reseting Key {license_key} ({e})")
+        return {
+            "success": False,
+            "data": None,
+            "error": str(e),
+            "machine_id": machine_id if 'machine_id' in locals() else None
+        }
+
+def get_license_machine(license_id: str) -> dict | None:
     url = f"https://api.keygen.sh/v1/accounts/{ACCOUNT_ID}/licenses/{license_id}/machines"
     headers = {
         "Accept": "application/vnd.api+json",
@@ -217,9 +294,10 @@ def get_license_machines(license_id: str) -> list:
         r = requests.get(url, headers=headers)
         if r.status_code == 200:
             data = r.json()
-            return data.get("data", [])
+            machines = data.get("data", [])
+            return machines[0] if machines else None
         else:
-            return []
+            return None
     except Exception as e:
-        print(f"Error getting machines for license {license_id}: {e}")
-        return []
+        print(f"Error getting machine for license {license_id}: {e}")
+        return None

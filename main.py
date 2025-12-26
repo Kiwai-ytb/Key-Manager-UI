@@ -4,6 +4,7 @@ from src.verify_key import verify_key_tab
 from src.create_key import create_key_tab
 from src.delete_key import delete_key_tab
 from src.key_infos import key_infos_tab
+from src.hwid_reset_key import hwid_reset_key_tab
 
 def resource_path(relative_path: str) -> str:
     if hasattr(sys, "frozen"):
@@ -47,6 +48,7 @@ class App(ctk.CTk):
         self.tabview.pack(fill="both")
         self.tab_verify_key = self.tabview.add("Verify Key")
         self.tab_activate_key = self.tabview.add("Activate Key")
+        self.tab_hwid_reset_key = self.tabview.add("HWID Reset Key")
         self.tab_create_key = self.tabview.add("Create Key")
         self.tab_delete_key = self.tabview.add("Delete Key")
         self.tab_key_info = self.tabview.add("Key Info")
@@ -59,14 +61,6 @@ class App(ctk.CTk):
         
         return
     
-    def build_delete_key_tab(self):
-        print("\nDelete Key tab opened!")
-        return
-    
-    def build_key_info_tab(self):
-        print("\nKey Info tab opened!")
-        return
-    
     def on_tab_change(self):
         self.clear_main_frame()
 
@@ -75,6 +69,8 @@ class App(ctk.CTk):
             verify_key_tab(self)
         elif tab_name == "Activate Key":
             activate_key_tab(self)
+        elif tab_name == "HWID Reset Key":
+            hwid_reset_key_tab(self)
         elif tab_name == "Create Key":
             create_key_tab(self)
         elif tab_name == "Delete Key":
